@@ -1,0 +1,30 @@
+<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5a189a;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#3c096c;stop-opacity:0.8" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <rect width="400" height="400" fill="url(#bgGrad)" rx="20" ry="20" filter="url(#shadow)" />
+  
+  <!-- Quote marks -->
+  <text x="50" y="80" font-family="Georgia" font-size="80" fill="#f2c94c" opacity="0.7">"</text>
+  <text x="330" y="320" font-family="Georgia" font-size="80" fill="#f2c94c" opacity="0.7">"</text>
+  
+  <!-- Person silhouette -->
+  <circle cx="200" cy="150" r="60" fill="#7b2cbf" stroke="#f2c94c" stroke-width="2"/>
+  <path d="M200 220 Q200 280 200 300" stroke="#7b2cbf" stroke-width="10" fill="none"/>
+  
+  <!-- Stars -->
+  <g fill="#f2c94c">
+    <polygon points="120,340 125,350 135,352 127,360 130,370 120,365 110,370 113,360 105,352 115,350" />
+    <polygon points="160,340 165,350 175,352 167,360 170,370 160,365 150,370 153,360 145,352 155,350" />
+    <polygon points="200,340 205,350 215,352 207,360 210,370 200,365 190,370 193,360 185,352 195,350" />
+    <polygon points="240,340 245,350 255,352 247,360 250,370 240,365 230,370 233,360 225,352 235,350" />
+    <polygon points="280,340 285,350 295,352 287,360 290,370 280,365 270,370 273,360 265,352 275,350" />
+  </g>
+</svg> 
