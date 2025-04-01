@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <rect width="600" height="600" fill="#5a189a" />
+  <circle cx="300" cy="200" r="120" fill="#f2c94c" stroke="#fff" stroke-width="10" />
+  <circle cx="300" cy="200" r="90" fill="#f2c94c" />
+  <path d="M200 350 L400 350 L400 450 L200 450 Z" fill="#f2c94c" />
+  <path d="M250 350 L250 230 M350 350 L350 230" stroke="#f2c94c" stroke-width="10" />
+  <text x="300" y="530" font-family="Arial" font-size="24" fill="#fff" text-anchor="middle">The Sun Card - Joy and Success</text>
+</svg> 
