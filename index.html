@@ -433,17 +433,20 @@
     <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
     <script>
         window.addEventListener('load', function() {
+            const loadingElement = document.getElementById('loading');
+            const widgetElement = document.querySelector('.calendly-inline-widget');
+            
             if (window.Calendly) {
-                window.Calendly.initInlineWidget({
-                    url: 'https://calendly.com/rucchira-malhotra',
-                    parentElement: document.querySelector('.calendly-inline-widget'),
-                    prefill: {},
-                    utm: {
-                        utmSource: 'ruchira.ca',
-                        utmMedium: 'website',
-                        utmCampaign: 'booking'
-                    }
-                });
+                // Hide loading message when widget is ready
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                }
+            } else {
+                // Show error message if Calendly fails to load
+                if (loadingElement) {
+                    loadingElement.innerHTML = 'Unable to load booking calendar. Please try again later or contact us directly.';
+                    loadingElement.style.color = '#dc2626';
+                }
             }
         });
     </script>
