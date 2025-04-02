@@ -348,8 +348,13 @@
                     <!-- Calendly Widget -->
                     <div class="bg-white p-4">
                         <div id="loading" class="text-center py-4 text-gray-600">Loading scheduling calendar...</div>
-                        <div class="calendly-inline-widget" style="min-width:320px;height:550px;"></div>
-                                    </div>
+                        <div class="calendly-inline-widget" 
+                             data-url="https://calendly.com/rucchira-malhotra" 
+                             style="min-width:320px;height:550px;"
+                             data-prefill="{}"
+                             data-utm-parameters="&utm_source=ruchira.ca&utm_medium=website&utm_campaign=booking">
+                        </div>
+                    </div>
                     
                     <!-- Stripe Payment Link -->
                     <div class="bg-gray-50 p-6 border-t border-gray-200">
@@ -425,7 +430,23 @@
     <script src="js/main.js"></script>
     
     <!-- Calendly Integration -->
-    <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js"></script>
+    <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+    <script>
+        window.addEventListener('load', function() {
+            if (window.Calendly) {
+                window.Calendly.initInlineWidget({
+                    url: 'https://calendly.com/rucchira-malhotra',
+                    parentElement: document.querySelector('.calendly-inline-widget'),
+                    prefill: {},
+                    utm: {
+                        utmSource: 'ruchira.ca',
+                        utmMedium: 'website',
+                        utmCampaign: 'booking'
+                    }
+                });
+            }
+        });
+    </script>
     
     <!-- Facebook SDK -->
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v17.0&appId=YOUR_APP_ID"></script>
