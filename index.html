@@ -445,15 +445,31 @@
                     return;
                 }
                 
-                // Fetch Calendly URL from server config, or use fallback
+                // Default Calendly URL (works for static hosting)
+                const defaultCalendlyUrl = 'https://calendly.com/rucchira-malhotra';
+                
+                // Try to fetch from API if available (for server-side hosting)
+                // Silently fall back to default URL if API is not available (static hosting)
                 fetch('/api/config')
-                    .then(response => response.json())
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('API not available');
+                    })
                     .then(config => {
-                        const calendlyUrl = config.calendlyUrl || 'https://calendly.com/rucchira-malhotra';
-                        
-                        // Initialize the inline widget
+                        const calendlyUrl = config.calendlyUrl || defaultCalendlyUrl;
+                        initializeWidget(calendlyUrl);
+                    })
+                    .catch(error => {
+                        // Silently use default URL for static hosting (GitHub Pages)
+                        initializeWidget(defaultCalendlyUrl);
+                    });
+                
+                function initializeWidget(url) {
+                    if (window.Calendly && containerElement) {
                         Calendly.initInlineWidget({
-                            url: calendlyUrl,
+                            url: url,
                             parentElement: containerElement,
                             prefill: {},
                             utm: {
@@ -469,28 +485,13 @@
                                 loadingElement.style.display = 'none';
                             }
                         }, 1000);
-                    })
-                    .catch(error => {
-                        console.error('Error loading Calendly config:', error);
-                        // Fallback to hardcoded URL
-                        const fallbackUrl = 'https://calendly.com/rucchira-malhotra';
-                        if (window.Calendly && containerElement) {
-                            Calendly.initInlineWidget({
-                                url: fallbackUrl,
-                                parentElement: containerElement
-                            });
-                            if (loadingElement) {
-                                setTimeout(() => {
-                                    loadingElement.style.display = 'none';
-                                }, 1000);
-                            }
-                        } else {
-                            if (loadingElement) {
-                                loadingElement.innerHTML = 'Unable to load booking calendar. Please try again later or contact us directly.';
-                                loadingElement.style.color = '#dc2626';
-                            }
+                    } else {
+                        if (loadingElement) {
+                            loadingElement.innerHTML = 'Unable to load booking calendar. Please try again later or contact us directly.';
+                            loadingElement.style.color = '#dc2626';
                         }
-                    });
+                    }
+                }
             }
             
             // Wait for Calendly script to load
