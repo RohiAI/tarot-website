@@ -30,45 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Initialize Calendly
-    async function initCalendly() {
-        const widget = document.querySelector('.calendly-inline-widget');
-        const loading = document.getElementById('loading');
-        
-        if (!widget || !loading) return;
-        
-        try {
-            // Fetch Calendly URL from server config
-            const response = await fetch('/api/config');
-            const config = await response.json();
-            
-            if (!config.calendlyUrl) {
-                throw new Error('Calendly URL not configured');
-            }
-            
-            // Initialize Calendly widget
-            Calendly.initInlineWidget({
-                url: config.calendlyUrl,
-                parentElement: widget
-            });
-            
-            // Hide loading message
-            loading.style.display = 'none';
-        } catch (error) {
-            console.error('Error initializing Calendly:', error);
-            if (loading) {
-                loading.textContent = 'Error loading booking calendar. Please try again later.';
-            }
-        }
-    }
-
-    // Initialize Calendly when the script is loaded
-    if (window.Calendly) {
-        initCalendly();
-    } else {
-        const calendlyScript = document.querySelector('[src*="calendly"]');
-        if (calendlyScript) {
-            calendlyScript.addEventListener('load', initCalendly);
-        }
-    }
+    // Calendly initialization is now handled in index.html
+    // Removed duplicate initialization code to prevent conflicts
 }); 
