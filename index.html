@@ -479,6 +479,18 @@
                             }
                         });
                         
+                        // Listen for Calendly events
+                        window.addEventListener('message', function(e) {
+                            if (e.data.event && e.data.event.indexOf('calendly') === 0) {
+                                // Handle Calendly events
+                                if (e.data.event === 'calendly.event_scheduled') {
+                                    // Booking was scheduled
+                                    const eventData = e.data.payload || {};
+                                    sendConfirmationEmail(eventData);
+                                }
+                            }
+                        });
+                        
                         // Hide loading message after a short delay
                         setTimeout(() => {
                             if (loadingElement) {
@@ -517,8 +529,77 @@
                     }
                 });
             }
+            
+            // Function to send confirmation email using EmailJS
+            // NOTE: This is optional. Calendly should send confirmation emails automatically.
+            // To enable this feature, configure EmailJS below and uncomment the emailjs.send() call.
+            function sendConfirmationEmail(eventData) {
+                // Get booking details from Calendly event
+                const inviteeEmail = eventData.invitee?.email || '';
+                const inviteeName = eventData.invitee?.name || 'Client';
+                const eventName = eventData.event_type?.name || 'Tarot Reading Session';
+                const eventDate = eventData.event?.start_time ? new Date(eventData.event.start_time).toLocaleString() : '';
+                
+                console.log('Booking confirmed:', {
+                    email: inviteeEmail,
+                    name: inviteeName,
+                    event: eventName,
+                    date: eventDate
+                });
+                
+                // EmailJS configuration (OPTIONAL - for custom confirmation emails)
+                // To enable, sign up at https://www.emailjs.com/ and replace the values below
+                const EMAILJS_CONFIG = {
+                    enabled: false, // Set to true after configuring EmailJS
+                    serviceId: 'YOUR_EMAILJS_SERVICE_ID',
+                    templateId: 'YOUR_EMAILJS_TEMPLATE_ID',
+                    publicKey: 'YOUR_EMAILJS_PUBLIC_KEY'
+                };
+                
+                // Skip if EmailJS is not configured
+                if (!EMAILJS_CONFIG.enabled || EMAILJS_CONFIG.serviceId === 'YOUR_EMAILJS_SERVICE_ID') {
+                    console.log('EmailJS not configured. Calendly should send confirmation emails automatically.');
+                    console.log('To enable custom emails, configure EmailJS in the code.');
+                    return;
+                }
+                
+                // Check if EmailJS is loaded
+                if (typeof emailjs === 'undefined') {
+                    console.error('EmailJS library not loaded. Please include the EmailJS script.');
+                    return;
+                }
+                
+                // Initialize EmailJS if not already initialized
+                if (!window.emailjsInitialized) {
+                    emailjs.init(EMAILJS_CONFIG.publicKey);
+                    window.emailjsInitialized = true;
+                }
+                
+                // Send confirmation email (uncomment when EmailJS is configured)
+                /*
+                emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+                    to_email: inviteeEmail,
+                    to_name: inviteeName,
+                    from_name: 'Ruchira - Tarot Numerology Reading',
+                    subject: 'Booking Confirmation - Tarot Reading Session',
+                    message: `Dear ${inviteeName},\n\nThank you for booking a ${eventName}!\n\nYour session is scheduled for: ${eventDate}\n\nWe look forward to connecting with you.\n\nBest regards,\nRuchira`,
+                    event_name: eventName,
+                    event_date: eventDate
+                })
+                .then(function(response) {
+                    console.log('Confirmation email sent successfully!', response.status, response.text);
+                })
+                .catch(function(error) {
+                    console.error('Failed to send confirmation email:', error);
+                });
+                */
+            }
         });
     </script>
+    
+    <!-- EmailJS SDK - Add this for email functionality -->
+    <!-- Get your EmailJS credentials from https://www.emailjs.com/ -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <!-- Facebook SDK -->
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v17.0&appId=YOUR_APP_ID"></script>
