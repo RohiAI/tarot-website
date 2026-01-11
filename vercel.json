@@ -1,0 +1,16 @@
+{
+  "functions": {
+    "api/stripe-webhook.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "env": {
+    "STRIPE_SECRET_KEY": "@stripe_secret_key",
+    "STRIPE_WEBHOOK_SECRET": "@stripe_webhook_secret",
+    "EMAILJS_SERVICE_ID": "@emailjs_service_id",
+    "EMAILJS_TEMPLATE_ID": "@emailjs_template_id",
+    "EMAILJS_PUBLIC_KEY": "@emailjs_public_key",
+    "ZOOM_MEETING_LINK": "@zoom_meeting_link"
+  }
+}

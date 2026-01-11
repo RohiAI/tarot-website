@@ -556,6 +556,16 @@
                     publicKey: 'YOUR_EMAILJS_PUBLIC_KEY'
                 };
                 
+                // Zoom Meeting Configuration
+                // Option 1: Use a recurring Zoom meeting link (same link for all sessions)
+                // Option 2: Get Zoom link from Calendly event data (if Calendly-Zoom is integrated)
+                // Option 3: Generate dynamically using Zoom API
+                const ZOOM_MEETING_LINK = eventData.event?.location?.location || 
+                                         eventData.event?.location?.join_url || 
+                                         'YOUR_ZOOM_MEETING_LINK'; // Replace with your Zoom link
+                const ZOOM_MEETING_ID = eventData.event?.location?.id || 'YOUR_MEETING_ID';
+                const ZOOM_PASSCODE = eventData.event?.location?.password || ''; // If applicable
+                
                 // Skip if EmailJS is not configured
                 if (!EMAILJS_CONFIG.enabled || EMAILJS_CONFIG.serviceId === 'YOUR_EMAILJS_SERVICE_ID') {
                     console.log('EmailJS not configured. Calendly should send confirmation emails automatically.');
@@ -575,19 +585,42 @@
                     window.emailjsInitialized = true;
                 }
                 
-                // Send confirmation email (uncomment when EmailJS is configured)
+                // Send confirmation email with Zoom link (uncomment when EmailJS is configured)
                 /*
+                // Build email message with Zoom link
+                let emailMessage = `Dear ${inviteeName},\n\n`;
+                emailMessage += `Thank you for booking a ${eventName}!\n\n`;
+                emailMessage += `Your session is scheduled for: ${eventDate}\n\n`;
+                
+                // Add Zoom link if available
+                if (ZOOM_MEETING_LINK && ZOOM_MEETING_LINK !== 'YOUR_ZOOM_MEETING_LINK') {
+                    emailMessage += `Join Zoom Meeting:\n${ZOOM_MEETING_LINK}\n\n`;
+                    if (ZOOM_MEETING_ID && ZOOM_MEETING_ID !== 'YOUR_MEETING_ID') {
+                        emailMessage += `Meeting ID: ${ZOOM_MEETING_ID}\n`;
+                    }
+                    if (ZOOM_PASSCODE) {
+                        emailMessage += `Passcode: ${ZOOM_PASSCODE}\n`;
+                    }
+                    emailMessage += `\n`;
+                }
+                
+                emailMessage += `We look forward to connecting with you!\n\n`;
+                emailMessage += `Best regards,\nRuchira`;
+                
                 emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
                     to_email: inviteeEmail,
                     to_name: inviteeName,
                     from_name: 'Ruchira - Tarot Numerology Reading',
                     subject: 'Booking Confirmation - Tarot Reading Session',
-                    message: `Dear ${inviteeName},\n\nThank you for booking a ${eventName}!\n\nYour session is scheduled for: ${eventDate}\n\nWe look forward to connecting with you.\n\nBest regards,\nRuchira`,
+                    message: emailMessage,
                     event_name: eventName,
-                    event_date: eventDate
+                    event_date: eventDate,
+                    zoom_link: ZOOM_MEETING_LINK,
+                    zoom_meeting_id: ZOOM_MEETING_ID,
+                    zoom_passcode: ZOOM_PASSCODE
                 })
                 .then(function(response) {
-                    console.log('Confirmation email sent successfully!', response.status, response.text);
+                    console.log('Confirmation email with Zoom link sent successfully!', response.status, response.text);
                 })
                 .catch(function(error) {
                     console.error('Failed to send confirmation email:', error);
