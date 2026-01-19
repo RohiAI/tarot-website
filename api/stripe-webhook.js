@@ -11,8 +11,17 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const emailjs = require('@emailjs/nodejs');
 
-// Initialize EmailJS
-emailjs.init(process.env.EMAILJS_PUBLIC_KEY);
+// Initialize EmailJS only if configured
+if (process.env.EMAILJS_PUBLIC_KEY) {
+    try {
+        emailjs.init(process.env.EMAILJS_PUBLIC_KEY);
+        console.log('[STRIPE WEBHOOK] EmailJS initialized');
+    } catch (initError) {
+        console.warn('[STRIPE WEBHOOK] Failed to initialize EmailJS:', initError.message);
+    }
+} else {
+    console.warn('[STRIPE WEBHOOK] EMAILJS_PUBLIC_KEY not set. Email confirmations will be skipped.');
+}
 
 // Your Zoom meeting link (or generate dynamically)
 const ZOOM_MEETING_LINK = process.env.ZOOM_MEETING_LINK || 'YOUR_ZOOM_MEETING_LINK';
@@ -50,6 +59,33 @@ module.exports = async (req, res) => {
         const eventDate = session.metadata?.event_date || 'TBD';
         const eventName = session.metadata?.event_name || 'Tarot Reading Session';
         
+        console.log('[STRIPE WEBHOOK] Payment confirmed - Attempting to send confirmation email:', {
+            customerEmail: customerEmail,
+            customerName: customerName,
+            eventName: eventName,
+            eventDate: eventDate,
+            sessionId: session.id
+        });
+        
+        // Check if EmailJS is configured
+        const hasEmailJSConfig = !!(
+            process.env.EMAILJS_SERVICE_ID && 
+            process.env.EMAILJS_TEMPLATE_ID && 
+            process.env.EMAILJS_PUBLIC_KEY
+        );
+        
+        if (!hasEmailJSConfig) {
+            console.warn('[STRIPE WEBHOOK] EmailJS not configured. Skipping email confirmation.');
+            console.warn('[STRIPE WEBHOOK] Set EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, and EMAILJS_PUBLIC_KEY environment variables to enable email confirmations.');
+            return res.json({ received: true, emailSent: false, reason: 'EmailJS not configured' });
+        }
+        
+        // Check if customer email exists
+        if (!customerEmail) {
+            console.warn('[STRIPE WEBHOOK] No customer email found in session. Cannot send confirmation email.');
+            return res.json({ received: true, emailSent: false, reason: 'No customer email' });
+        }
+        
         // Send confirmation email with Zoom link
         try {
             const emailParams = {
@@ -63,16 +99,30 @@ module.exports = async (req, res) => {
                 zoom_link: ZOOM_MEETING_LINK
             };
             
-            await emailjs.send(
+            console.log('[STRIPE WEBHOOK] Sending confirmation email to:', customerEmail);
+            
+            const emailResponse = await emailjs.send(
                 process.env.EMAILJS_SERVICE_ID,
                 process.env.EMAILJS_TEMPLATE_ID,
                 emailParams
             );
             
-            console.log('Confirmation email with Zoom link sent to:', customerEmail);
+            console.log('[STRIPE WEBHOOK] ✅ Confirmation email sent successfully!', {
+                status: emailResponse.status,
+                text: emailResponse.text,
+                recipient: customerEmail
+            });
+            
+            return res.json({ received: true, emailSent: true, recipient: customerEmail });
         } catch (emailError) {
-            console.error('Failed to send email:', emailError);
-            // Don't fail the webhook if email fails
+            console.error('[STRIPE WEBHOOK] ❌ Failed to send email:', {
+                error: emailError,
+                message: emailError.message || emailError,
+                recipient: customerEmail,
+                stack: emailError.stack
+            });
+            // Don't fail the webhook if email fails - payment was successful
+            return res.json({ received: true, emailSent: false, error: emailError.message });
         }
     }
 

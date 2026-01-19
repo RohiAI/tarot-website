@@ -24,7 +24,13 @@ app.get('/', (req, res) => {
 // Get Calendly URL
 app.get('/api/config', (req, res) => {
     res.json({
-        calendlyUrl: process.env.CALENDLY_URL
+        calendlyUrl: process.env.CALENDLY_URL,
+        emailjs: {
+            enabled: !!(process.env.EMAILJS_SERVICE_ID && process.env.EMAILJS_TEMPLATE_ID && process.env.EMAILJS_PUBLIC_KEY),
+            serviceId: process.env.EMAILJS_SERVICE_ID || null,
+            templateId: process.env.EMAILJS_TEMPLATE_ID || null,
+            publicKey: process.env.EMAILJS_PUBLIC_KEY || null
+        }
     });
 });
 

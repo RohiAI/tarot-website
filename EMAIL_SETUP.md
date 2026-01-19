@@ -60,19 +60,16 @@ If you want to send custom confirmation emails in addition to Calendly's emails,
    - **Template ID**: Found in Email Templates section
    - **Public Key**: Found in Account → General section
 
-5. **Update the Code:**
-   - Open `public/index.html`
-   - Find the `EMAILJS_CONFIG` object (around line 550)
-   - Update with your credentials:
-     ```javascript
-     const EMAILJS_CONFIG = {
-         enabled: true, // Enable EmailJS
-         serviceId: 'your_service_id',
-         templateId: 'your_template_id',
-         publicKey: 'your_public_key'
-     };
+5. **Set Environment Variables:**
+   - The code now automatically fetches EmailJS configuration from the server
+   - Set these environment variables in your deployment (Vercel, Netlify, etc.) or `.env` file:
      ```
-   - Uncomment the `emailjs.send()` call in the `sendConfirmationEmail` function
+     EMAILJS_SERVICE_ID=your_service_id
+     EMAILJS_TEMPLATE_ID=your_template_id
+     EMAILJS_PUBLIC_KEY=your_public_key
+     ```
+   - The email confirmation code is now **automatically enabled** when these variables are set
+   - No code changes needed - just set the environment variables!
 
 6. **Test:**
    - Make a test booking
@@ -95,11 +92,14 @@ If you want to send custom confirmation emails in addition to Calendly's emails,
 5. Check email provider settings (some block automated emails)
 
 ### EmailJS not working:
-1. Verify all credentials are correct
-2. Check browser console for errors
-3. Ensure EmailJS script is loaded
-4. Verify email service is properly connected in EmailJS dashboard
-5. Check EmailJS usage limits
+1. Verify all environment variables are set correctly (EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY)
+2. Check browser console for errors (look for `[EMAIL]` prefixed messages)
+3. Check server logs for `[STRIPE WEBHOOK]` messages if using Stripe payments
+4. Ensure EmailJS script is loaded (should be automatic)
+5. Verify email service is properly connected in EmailJS dashboard
+6. Check EmailJS usage limits
+7. For Calendly bookings: Check browser console for `[EMAIL]` logs when a booking is made
+8. For Stripe payments: Check webhook logs for `[STRIPE WEBHOOK]` messages
 
 ## Support
 
