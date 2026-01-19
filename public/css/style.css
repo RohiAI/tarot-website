@@ -1217,4 +1217,23 @@ a:hover {
 /* Ensure tooltip is hidden by default */
 .visibility-hidden {
     visibility: hidden;
+}
+
+/* Fix for "Book a Reading" button - keep text white on hover */
+a.bg-primary,
+a[class*="bg-primary"] {
+    color: white !important;
+}
+
+a.bg-primary:hover,
+a[class*="bg-primary"]:hover,
+a[class*="hover:bg-primary-dark"]:hover {
+    color: white !important;
+}
+
+/* Ensure all primary buttons with white text stay white on hover */
+.bg-primary.text-white:hover,
+.text-white.bg-primary:hover,
+[class*="bg-primary"][class*="text-white"]:hover {
+    color: white !important;
 } 
