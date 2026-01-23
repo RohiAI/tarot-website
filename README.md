@@ -103,7 +103,7 @@ For production, update the `.env` file with your live Stripe API keys and set `N
 
 ## Webhook Setup
 
-For full payment functionality, set up a Stripe webhook:
+For full payment functionality, set up a Stripe webhook :
 
 1. Go to the [Stripe Dashboard](https://dashboard.stripe.com/webhooks)
 2. Create a new webhook endpoint pointing to your server's `/webhook` route
