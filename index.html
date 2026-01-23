@@ -532,29 +532,64 @@
             
             // Function to send confirmation email using EmailJS
             // NOTE: This is optional. Calendly should send confirmation emails automatically.
-            // To enable this feature, configure EmailJS below and uncomment the emailjs.send() call.
-            function sendConfirmationEmail(eventData) {
+            // This function sends an additional custom confirmation email if EmailJS is configured.
+            async function sendConfirmationEmail(eventData) {
                 // Get booking details from Calendly event
                 const inviteeEmail = eventData.invitee?.email || '';
                 const inviteeName = eventData.invitee?.name || 'Client';
                 const eventName = eventData.event_type?.name || 'Tarot Reading Session';
                 const eventDate = eventData.event?.start_time ? new Date(eventData.event.start_time).toLocaleString() : '';
                 
-                console.log('Booking confirmed:', {
+                console.log('[EMAIL] Booking confirmed - Attempting to send confirmation email:', {
                     email: inviteeEmail,
                     name: inviteeName,
                     event: eventName,
                     date: eventDate
                 });
                 
-                // EmailJS configuration (OPTIONAL - for custom confirmation emails)
-                // To enable, sign up at https://www.emailjs.com/ and replace the values below
-                const EMAILJS_CONFIG = {
-                    enabled: false, // Set to true after configuring EmailJS
-                    serviceId: 'YOUR_EMAILJS_SERVICE_ID',
-                    templateId: 'YOUR_EMAILJS_TEMPLATE_ID',
-                    publicKey: 'YOUR_EMAILJS_PUBLIC_KEY'
-                };
+                // Fetch EmailJS configuration from server
+                let EMAILJS_CONFIG = null;
+                try {
+                    const configResponse = await fetch('/api/config');
+                    const config = await configResponse.json();
+                    EMAILJS_CONFIG = config.emailjs;
+                    
+                    console.log('[EMAIL] EmailJS configuration loaded:', {
+                        enabled: EMAILJS_CONFIG?.enabled,
+                        hasServiceId: !!EMAILJS_CONFIG?.serviceId,
+                        hasTemplateId: !!EMAILJS_CONFIG?.templateId,
+                        hasPublicKey: !!EMAILJS_CONFIG?.publicKey
+                    });
+                } catch (configError) {
+                    console.warn('[EMAIL] Failed to fetch EmailJS config from server:', configError);
+                    console.log('[EMAIL] Calendly should send confirmation emails automatically.');
+                    return;
+                }
+                
+                // Skip if EmailJS is not configured
+                if (!EMAILJS_CONFIG?.enabled || !EMAILJS_CONFIG?.serviceId || !EMAILJS_CONFIG?.templateId || !EMAILJS_CONFIG?.publicKey) {
+                    console.log('[EMAIL] EmailJS not configured. Calendly should send confirmation emails automatically.');
+                    console.log('[EMAIL] To enable custom emails, configure EmailJS environment variables (EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY).');
+                    return;
+                }
+                
+                // Check if EmailJS is loaded
+                if (typeof emailjs === 'undefined') {
+                    console.error('[EMAIL] EmailJS library not loaded. Please check that the EmailJS script is included.');
+                    return;
+                }
+                
+                // Initialize EmailJS if not already initialized
+                if (!window.emailjsInitialized) {
+                    try {
+                        emailjs.init(EMAILJS_CONFIG.publicKey);
+                        window.emailjsInitialized = true;
+                        console.log('[EMAIL] EmailJS initialized successfully');
+                    } catch (initError) {
+                        console.error('[EMAIL] Failed to initialize EmailJS:', initError);
+                        return;
+                    }
+                }
                 
                 // Zoom Meeting Configuration
                 // Option 1: Use a recurring Zoom meeting link (same link for all sessions)
@@ -562,40 +597,20 @@
                 // Option 3: Generate dynamically using Zoom API
                 const ZOOM_MEETING_LINK = eventData.event?.location?.location || 
                                          eventData.event?.location?.join_url || 
-                                         'YOUR_ZOOM_MEETING_LINK'; // Replace with your Zoom link
-                const ZOOM_MEETING_ID = eventData.event?.location?.id || 'YOUR_MEETING_ID';
-                const ZOOM_PASSCODE = eventData.event?.location?.password || ''; // If applicable
+                                         eventData.event?.location?.join_url || 
+                                         ''; // Will be empty if not available
+                const ZOOM_MEETING_ID = eventData.event?.location?.id || '';
+                const ZOOM_PASSCODE = eventData.event?.location?.password || '';
                 
-                // Skip if EmailJS is not configured
-                if (!EMAILJS_CONFIG.enabled || EMAILJS_CONFIG.serviceId === 'YOUR_EMAILJS_SERVICE_ID') {
-                    console.log('EmailJS not configured. Calendly should send confirmation emails automatically.');
-                    console.log('To enable custom emails, configure EmailJS in the code.');
-                    return;
-                }
-                
-                // Check if EmailJS is loaded
-                if (typeof emailjs === 'undefined') {
-                    console.error('EmailJS library not loaded. Please include the EmailJS script.');
-                    return;
-                }
-                
-                // Initialize EmailJS if not already initialized
-                if (!window.emailjsInitialized) {
-                    emailjs.init(EMAILJS_CONFIG.publicKey);
-                    window.emailjsInitialized = true;
-                }
-                
-                // Send confirmation email with Zoom link (uncomment when EmailJS is configured)
-                /*
                 // Build email message with Zoom link
                 let emailMessage = `Dear ${inviteeName},\n\n`;
                 emailMessage += `Thank you for booking a ${eventName}!\n\n`;
                 emailMessage += `Your session is scheduled for: ${eventDate}\n\n`;
                 
                 // Add Zoom link if available
-                if (ZOOM_MEETING_LINK && ZOOM_MEETING_LINK !== 'YOUR_ZOOM_MEETING_LINK') {
+                if (ZOOM_MEETING_LINK) {
                     emailMessage += `Join Zoom Meeting:\n${ZOOM_MEETING_LINK}\n\n`;
-                    if (ZOOM_MEETING_ID && ZOOM_MEETING_ID !== 'YOUR_MEETING_ID') {
+                    if (ZOOM_MEETING_ID) {
                         emailMessage += `Meeting ID: ${ZOOM_MEETING_ID}\n`;
                     }
                     if (ZOOM_PASSCODE) {
@@ -607,25 +622,41 @@
                 emailMessage += `We look forward to connecting with you!\n\n`;
                 emailMessage += `Best regards,\nRuchira`;
                 
-                emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
-                    to_email: inviteeEmail,
-                    to_name: inviteeName,
-                    from_name: 'Ruchira - Tarot Numerology Reading',
-                    subject: 'Booking Confirmation - Tarot Reading Session',
-                    message: emailMessage,
-                    event_name: eventName,
-                    event_date: eventDate,
-                    zoom_link: ZOOM_MEETING_LINK,
-                    zoom_meeting_id: ZOOM_MEETING_ID,
-                    zoom_passcode: ZOOM_PASSCODE
-                })
-                .then(function(response) {
-                    console.log('Confirmation email with Zoom link sent successfully!', response.status, response.text);
-                })
-                .catch(function(error) {
-                    console.error('Failed to send confirmation email:', error);
-                });
-                */
+                // Send confirmation email with Zoom link
+                try {
+                    console.log('[EMAIL] Sending confirmation email to:', inviteeEmail);
+                    
+                    const emailParams = {
+                        to_email: inviteeEmail,
+                        to_name: inviteeName,
+                        from_name: 'Ruchira - Tarot Numerology Reading',
+                        subject: 'Booking Confirmation - Tarot Reading Session',
+                        message: emailMessage,
+                        event_name: eventName,
+                        event_date: eventDate,
+                        zoom_link: ZOOM_MEETING_LINK || '',
+                        zoom_meeting_id: ZOOM_MEETING_ID || '',
+                        zoom_passcode: ZOOM_PASSCODE || ''
+                    };
+                    
+                    const response = await emailjs.send(
+                        EMAILJS_CONFIG.serviceId,
+                        EMAILJS_CONFIG.templateId,
+                        emailParams
+                    );
+                    
+                    console.log('[EMAIL] ✅ Confirmation email sent successfully!', {
+                        status: response.status,
+                        text: response.text,
+                        recipient: inviteeEmail
+                    });
+                } catch (emailError) {
+                    console.error('[EMAIL] ❌ Failed to send confirmation email:', {
+                        error: emailError,
+                        recipient: inviteeEmail,
+                        details: emailError.message || emailError
+                    });
+                }
             }
         });
     </script>
