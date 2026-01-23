@@ -4,7 +4,7 @@
  */
 
 // Load environment variables
-i sthis good and ready to be pasted -1️⃣ server.js (updated)
+
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
