@@ -1237,3 +1237,21 @@ a[class*="hover:bg-primary-dark"]:hover {
 [class*="bg-primary"][class*="text-white"]:hover {
     color: white !important;
 } 
+/* Stripe Buttons for Payment Options */
+.stripe-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+    background-color: #7b2cbf; /* Primary color */
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.stripe-btn:hover {
+    background-color: #5a189a; /* Darker primary */
+    transform: translateY(-2px);
+}
