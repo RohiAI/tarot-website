@@ -4,8 +4,8 @@
  */
 
 // Load environment variables
+i sthis good and ready to be pasted -1️⃣ server.js (updated)
 require('dotenv').config();
-
 const express = require('express');
 const path = require('path');
 
@@ -13,10 +13,10 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Serve static files
+// Serve static files from 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
+// Home route
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -24,34 +24,41 @@ app.get('/', (req, res) => {
 // Get Calendly URL
 app.get('/api/config', (req, res) => {
     res.json({
-        calendlyUrl: process.env.CALENDLY_URL,
-        emailjs: {
-            enabled: !!(process.env.EMAILJS_SERVICE_ID && process.env.EMAILJS_TEMPLATE_ID && process.env.EMAILJS_PUBLIC_KEY),
-            serviceId: process.env.EMAILJS_SERVICE_ID || null,
-            templateId: process.env.EMAILJS_TEMPLATE_ID || null,
-            publicKey: process.env.EMAILJS_PUBLIC_KEY || null
-        }
+        calendlyUrl: process.env.CALENDLY_URL
     });
 });
 
-// Start the server with error handling
+// ✅ New: Products endpoint
+app.get('/api/products', (req, res) => {
+    const products = [
+        {
+            name: "Tarot Consult",
+            price: "$45",
+            link: "https://buy.stripe.com/4gMcN5bAo6Lg7ba7aIgnK02"
+        },
+        {
+            name: "Tarot and Numerology Consult",
+            price: "$55",
+            link: "https://buy.stripe.com/14A3cv8oc4D8brqbqYgnK01"
+        }
+    ];
+    res.json(products);
+});
+
+// Start server with error handling
 const server = app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
-    console.log('Press Ctrl+C to stop the server');
 }).on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-        console.error(`Port ${PORT} is already in use. Please close the other application or use a different port.`);
+        console.error(`Port ${PORT} is already in use.`);
     } else {
         console.error('Error starting server:', err.message);
     }
     process.exit(1);
 });
 
-// Handle graceful shutdown
+// Graceful shutdown
 process.on('SIGINT', () => {
-    console.log('Shutting down server gracefully...');
-    server.close(() => {
-        console.log('Server shut down successfully');
-        process.exit(0);
-    });
-}); 
+    console.log('Shutting down server...');
+    server.close(() => process.exit(0));
+});
