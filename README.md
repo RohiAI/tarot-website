@@ -112,7 +112,7 @@ For full payment functionality, set up a Stripe webhook :
 
 ## License
 
-MIT.  
+MIT
 
 ## Credits
 
