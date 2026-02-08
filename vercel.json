@@ -7,11 +7,11 @@
     }
   },
   "env": {
-    "STRIPE_SECRET_KEY": "@stripe_secret_key",
-    "STRIPE_WEBHOOK_SECRET": "@stripe_webhook_secret",
-    "EMAIL_USER": "@email_user",
-    "EMAIL_PASS": "@email_pass",
-    "ZOOM_MEETING_LINK": "@zoom_meeting_link",
-    "CALENDLY_URL": "@calendly_url"
+    "STRIPE_SECRET_KEY": "mk_1R2EjGHMWuDq6ECinFg1Sdsi",
+    "STRIPE_WEBHOOK_SECRET": "whsec_d32cbabc6af443d862fba524d5ba0a1b21d4bea6183da5fc1402fcc48e058d50",
+    "EMAIL_USER": "rucchira.malhotra@gmail.com",
+    "EMAIL_PASS": "irkafmuspfcffxqy",
+    "ZOOM_MEETING_LINK": "https://zoom.us/j/1234567890",
+    "CALENDLY_URL": "https://calendly.com/rucchira-malhotra"
   }
 }
