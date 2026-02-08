@@ -8,6 +8,9 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const stripeWebhook = require('./api/stripe-webhook');
+
+
 
 // Initialize Express app
 const app = express();
@@ -44,6 +47,13 @@ app.get('/api/products', (req, res) => {
     ];
     res.json(products);
 });
+
+// Stripe webhook route
+app.post(
+  '/api/stripe-webhook',
+  express.raw({ type: 'application/json' }),
+  stripeWebhook
+);
 
 // Start server with error handling
 const server = app.listen(PORT, () => {
