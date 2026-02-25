@@ -18,7 +18,6 @@
   "author": "Mystic Designs",
   "license": "MIT",
   "dependencies": {
-    "@vercel/analytics": "^1.6.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "next": "^16.1.6",
